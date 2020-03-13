@@ -18,13 +18,13 @@ export class KeyGuard implements CanActivate {
     const { body, user } = request;
 
     if (!body || !user) {
-      return true;
+      return false;
     }
 
     const { key } = body;
 
     if (!key) {
-      return true;
+      return false;
     }
 
     const oldKeyHash = await User.hashKey(key);
