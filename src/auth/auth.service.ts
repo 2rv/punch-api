@@ -3,6 +3,7 @@ import {
   Scope,
   BadRequestException,
   InternalServerErrorException,
+  ConflictException,
 } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -93,6 +94,16 @@ export class AuthService {
       user.password = await User.hashPassword(password);
     }
 
-    await user.save();
+    try {
+      await user.save();
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        throw new ConflictException(
+          Translate(Errors.USERNAME_WITH_THIS_LOGIN_ALREADY_EXISTS),
+        );
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 }
