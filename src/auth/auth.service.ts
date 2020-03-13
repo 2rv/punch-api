@@ -1,18 +1,22 @@
 import {
   Injectable,
-  Inject,
-  forwardRef,
   Scope,
-  HttpCode,
+  BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserSignUpDto } from './dto/user-sign-up.dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interface/jwt-payload.interface';
-import { LoginInfo } from './interface/login-info.interface';
+import { LoginInfoDto } from './dto/login-info.dto';
+import { SignupInfoDto } from './dto/signup-info.dto';
 import { UserLoginDto } from './dto/user-login.dto';
 import { User } from './user.entity';
+import { generateKeyHash } from '../utils/hash';
+import { Translate } from 'src/utils';
+import { Errors } from './enum/errors.enum';
+import { UserRefreshKeyDto } from './dto/user-refresh-key.dto';
+import { UserUpdateLoginDataDto } from './dto/user-update-login-data.dto';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService {
@@ -22,47 +26,73 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  @HttpCode(200)
-  async signUp(): Promise<LoginInfo> {
-    const userData = await this.userRepository.signUp();
+  async signUp(): Promise<SignupInfoDto> {
+    const key = await User.generateKeyHash();
 
-    const { login, id, role, balance, key } = userData;
+    const userData = await this.userRepository.signUp(key);
+
+    const { id, role, balance } = userData;
 
     const payload: JwtPayload = {
-      login,
       id,
       role,
       balance,
-      key,
     };
 
     const accessToken = await this.createJwt(payload);
 
-    const loginInfo: LoginInfo = { accessToken };
+    const signupInfoDto: SignupInfoDto = { accessToken, key };
 
-    return loginInfo;
+    return signupInfoDto;
   }
 
-  async login(userLoginDto: UserLoginDto): Promise<LoginInfo> {
+  async login(userLoginDto: UserLoginDto): Promise<LoginInfoDto> {
     const userData = await this.userRepository.login(userLoginDto);
-    const { login, id, role, balance, key } = userData;
+    const { id, role, balance } = userData;
 
     const payload: JwtPayload = {
-      login,
       id,
       role,
       balance,
-      key,
     };
 
     const accessToken = await this.createJwt(payload);
 
-    const loginInfo: LoginInfo = { accessToken };
+    const loginInfoDto: LoginInfoDto = { accessToken };
 
-    return loginInfo;
+    return loginInfoDto;
   }
 
   async createJwt(payload: JwtPayload): Promise<string> {
     return this.jwtService.sign(payload);
+  }
+
+  async refreshKey(user: User): Promise<UserRefreshKeyDto> {
+    const newKey = await User.generateKeyHash();
+    user.key = await User.hashKey(newKey);
+
+    try {
+      await user.save();
+      return { key: newKey };
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async updateLoginData(
+    user: User,
+    userUpdateLoginDataDto: UserUpdateLoginDataDto,
+  ): Promise<void> {
+    const { login, password } = userUpdateLoginDataDto;
+
+    if (login) {
+      user.login = login;
+    }
+
+    if (password) {
+      user.password = await User.hashPassword(password);
+    }
+
+    await user.save();
   }
 }

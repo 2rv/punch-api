@@ -1,6 +1,5 @@
 import { Repository, EntityRepository } from 'typeorm';
 import { User } from './user.entity';
-import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { Errors } from './enum/errors.enum';
 import {
   ConflictException,
@@ -13,9 +12,9 @@ import { UserLoginDto } from './dto/user-login.dto';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
-  async signUp(): Promise<User> {
+  async signUp(key: string): Promise<User> {
     const user = this.create();
-    await user.hashKey();
+    user.key = await User.hashKey(key);
 
     try {
       await user.save();
@@ -31,22 +30,42 @@ export class UserRepository extends Repository<User> {
 
   async login(userLoginDto: UserLoginDto): Promise<User> {
     const { login, password, key } = userLoginDto;
+    let keyHash = null;
 
-    const user = await this.findOne({ where: [{ login }, { key }] });
+    const query = this.createQueryBuilder('user');
+
+    if (key) {
+      keyHash = await User.hashKey(key);
+      query.andWhere('user.key = :key', { key: keyHash });
+    }
+
+    if (login) {
+      query.andWhere('user.login = :login', { login });
+    }
+
+    query.select([
+      'user.id',
+      'user.balance',
+      'user.role',
+      'user.password',
+      'user.key',
+    ]);
+
+    const user = await query.getOne();
+
     if (user === undefined) {
       throw new NotFoundException(Translate(Errors.COULDNT_FOUND_USER));
     } else {
       let isCorrect = false;
 
       if (key) {
-        const keyCorrect = await user.validateKey(key);
+        const keyCorrect = keyHash === user.key;
         isCorrect = keyCorrect || isCorrect;
+      } else if (login && password) {
+        const passwordHash = await User.hashPassword(password);
+        const passwordCorrect = await user.validatePassword(passwordHash);
+        isCorrect = passwordCorrect || isCorrect;
       }
-
-      // if (login) {
-      //   const passwordCorrect = await user.validatePassword(password);
-      //   isCorrect = passwordCorrect || isCorrect;
-      // }
 
       if (!isCorrect) {
         throw new BadRequestException(Translate(Errors.UNCORRECT_LOGIN_DATA));

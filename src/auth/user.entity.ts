@@ -5,8 +5,14 @@ import {
   Column,
   Unique,
 } from 'typeorm';
-import * as bcrypt from 'bcrypt';
+import {
+  generateBcryptHash,
+  generateKeyHash,
+  generateKeySalt,
+  generatePasswordSalt,
+} from '../utils/hash';
 import { UserRole } from './enum/user-role.enum';
+import * as bcrypt from 'bcrypt';
 
 @Entity()
 @Unique(['login'])
@@ -19,9 +25,6 @@ export class User extends BaseEntity {
 
   @Column({ nullable: true })
   password: string;
-
-  @Column({ nullable: true })
-  salt: string;
 
   @Column()
   key: string;
@@ -37,21 +40,25 @@ export class User extends BaseEntity {
   @Column({ type: 'decimal', default: 0 })
   balance: number;
 
-  async hashKey(): Promise<void> {
-    this.key = await bcrypt.genSalt();
+  static async generateKeyHash(): Promise<string> {
+    return generateKeyHash();
   }
 
-  async hashPassword(password): Promise<void> {
-    this.salt = await bcrypt.genSalt();
-    this.password = await bcrypt.hash(password, this.salt);
+  static async hashKey(key: string): Promise<string> {
+    const salt = await generateKeySalt(key);
+    return generateBcryptHash(key, salt);
   }
 
-  async validateKey(key: string): Promise<boolean> {
+  static async hashPassword(password: string): Promise<string> {
+    const salt = await generatePasswordSalt(password);
+    return generateBcryptHash(password, salt);
+  }
+
+  async validateKeyHash(key: string): Promise<boolean> {
     return key === this.key;
   }
 
   async validatePassword(password: string): Promise<boolean> {
-    const hash = await bcrypt.hash(password, this.salt);
-    return hash === this.password;
+    return this.password === password;
   }
 }

@@ -5,4 +5,4 @@ db:
   type: 'mysql'
 
 jwt:
-  expiresIn: 36000
+  expiresIn: '198720s'
