@@ -48,6 +48,7 @@ export class UserRepository extends Repository<User> {
       'user.balance',
       'user.role',
       'user.password',
+      'user.login',
       'user.key',
     ]);
 
@@ -70,6 +71,8 @@ export class UserRepository extends Repository<User> {
       if (!isCorrect) {
         throw new BadRequestException(Translate(Errors.UNCORRECT_LOGIN_DATA));
       } else {
+        delete user.password;
+        delete user.key;
         return user;
       }
     }

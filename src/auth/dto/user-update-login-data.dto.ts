@@ -1,9 +1,9 @@
-import { IsOptional, IsString, Matches, IsNotEmpty } from 'class-validator';
+import { IsOptional, IsString, Matches } from 'class-validator';
 import { LocalError } from '../../utils';
 import { Errors } from '../enum/errors.enum';
 
 export class UserUpdateLoginDataDto {
-  @IsNotEmpty({
+  @IsOptional({
     context: LocalError(Errors.VALIDATION_REQUIRED),
   })
   @IsString()
@@ -12,7 +12,7 @@ export class UserUpdateLoginDataDto {
   })
   login: string;
 
-  @IsNotEmpty({
+  @IsOptional({
     context: LocalError(Errors.VALIDATION_REQUIRED),
   })
   @IsString()

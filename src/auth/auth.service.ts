@@ -30,30 +30,21 @@ export class AuthService {
   async signUp(): Promise<SignupInfoDto> {
     const key = await User.generateKeyHash();
 
-    const userData = await this.userRepository.signUp(key);
+    await this.userRepository.signUp(key);
 
-    const { id, role, balance } = userData;
-
-    const payload: JwtPayload = {
-      id,
-      role,
-      balance,
-    };
-
-    const accessToken = await this.createJwt(payload);
-
-    const signupInfoDto: SignupInfoDto = { accessToken, key };
+    const signupInfoDto: SignupInfoDto = { key };
 
     return signupInfoDto;
   }
 
   async login(userLoginDto: UserLoginDto): Promise<LoginInfoDto> {
     const userData = await this.userRepository.login(userLoginDto);
-    const { id, role, balance } = userData;
+    const { id, role, balance, login } = userData;
 
     const payload: JwtPayload = {
       id,
       role,
+      login,
       balance,
     };
 

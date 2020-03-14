@@ -4,4 +4,5 @@ export interface JwtPayload {
   id: number;
   role: keyof UserRole;
   balance: number;
+  login: string;
 }
