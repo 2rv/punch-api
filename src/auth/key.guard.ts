@@ -29,6 +29,12 @@ export class KeyGuard implements CanActivate {
 
     const oldKeyHash = await User.hashKey(key);
 
-    return oldKeyHash === user.key;
+    if (oldKeyHash !== user.key) {
+      throw new BadRequestException(
+        Translate(Errors.UNCORRECT_OLD_KEY_FOR_REFRESH),
+      );
+    } else {
+      return true;
+    }
   }
 }
