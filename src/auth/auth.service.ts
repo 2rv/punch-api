@@ -4,6 +4,8 @@ import {
   BadRequestException,
   InternalServerErrorException,
   ConflictException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,16 +20,23 @@ import { Translate } from 'src/utils';
 import { Errors } from './enum/errors.enum';
 import { UserRefreshKeyDto } from './dto/user-refresh-key.dto';
 import { UserUpdateLoginDataDto } from './dto/user-update-login-data.dto';
+import { CaptchaService } from 'src/captcha/captcha.service';
+import { UserSignUpDto } from './dto/user-sign-up.dto';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(UserRepository)
     private userRepository: UserRepository,
     private jwtService: JwtService,
+    private captchaService: CaptchaService,
   ) {}
 
-  async signUp(): Promise<SignupInfoDto> {
+  async signUp(userSignUpDto: UserSignUpDto): Promise<SignupInfoDto> {
+    const { captchaId, captchaValue } = userSignUpDto;
+
+    await this.captchaService.validateCaptcha(captchaId, captchaValue);
+
     const key = await User.generateKeyHash();
 
     await this.userRepository.signUp(key);

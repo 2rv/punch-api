@@ -1,6 +1,7 @@
 import generateHash from 'random-hash';
 import * as bcrypt from 'bcrypt';
 import * as stringHash from 'string-hash';
+import * as uuid from 'uuid-random';
 
 const KEY_HASH_CHARSET =
   'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/';
@@ -35,3 +36,5 @@ export const generateBcryptHash = (value: string, salt: string): string => {
 export const compareBcryptHash = (value: string, hash: string): boolean => {
   return bcrypt.compare(value, hash);
 };
+
+export const randomUUID = () => uuid();

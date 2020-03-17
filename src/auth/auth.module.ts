@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtConfig } from '../config/jwt.config';
 import { JwtStrategy } from './jwt.strategy';
+import { CaptchaService } from '../captcha/captcha.service';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { JwtStrategy } from './jwt.strategy';
     TypeOrmModule.forFeature([UserRepository]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, CaptchaService],
   exports: [JwtStrategy, PassportModule, AuthService],
 })
 export class AuthModule {}

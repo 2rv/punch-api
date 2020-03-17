@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ContactMessageDto } from './dto/contact-message.dto';
 import { Translate } from 'src/utils';
 import { Errors } from './enum/errors.enum';
-import { ContactTemplate } from '../templates';
+import { ContactTemplate } from './templates';
 import { sendMail, MailOptionsType } from '../utils/mail';
 
 @Injectable()

@@ -4,7 +4,8 @@ import { typeOrmConfig } from './config/typeorm.config';
 import { AuthModule } from './auth/auth.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggingInterceptor } from './logging.interceptor';
-import { MessageModule } from './message/message.module';
+// import { MessageModule } from './message/message.module';
+import { CaptchaModule } from './captcha/captcha.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
@@ -21,7 +22,8 @@ import { ConfigModule } from '@nestjs/config';
     }),
     TypeOrmModule.forRoot(typeOrmConfig),
     AuthModule,
-    MessageModule,
+    // MessageModule,
+    CaptchaModule,
   ],
 })
 export class AppModule {}

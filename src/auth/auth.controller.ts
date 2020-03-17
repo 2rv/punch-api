@@ -29,8 +29,10 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('/signup')
-  async signUp(): Promise<SignupInfoDto> {
-    return this.authService.signUp();
+  async signUp(
+    @Body(ValidationPipe) userSignUpDto: UserSignUpDto,
+  ): Promise<SignupInfoDto> {
+    return this.authService.signUp(userSignUpDto);
   }
 
   @HttpCode(200)
