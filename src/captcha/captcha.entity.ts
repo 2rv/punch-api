@@ -4,8 +4,8 @@ import { randomUUID } from 'src/utils/hash';
 import { InternalServerErrorException } from '@nestjs/common';
 
 const CaptchaCache = new NodeCache({
-  stdTTL: 600,
-  checkperiod: 600,
+  stdTTL: 300,
+  checkperiod: 300,
   deleteOnExpire: true,
 });
 
@@ -15,11 +15,14 @@ export class Captcha {
   value: string;
 
   constructor() {
-    const { data, text } = createCaptcha();
+    this.id = randomUUID();
+  }
+
+  async generate() {
+    const { data, text } = await createCaptcha();
 
     this.data = data;
     this.value = text;
-    this.id = randomUUID();
   }
 
   async save() {

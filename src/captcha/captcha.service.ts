@@ -18,10 +18,10 @@ export class CaptchaService {
   async generateCaptcha(): Promise<Captcha> {
     const captcha = new Captcha();
 
+    await captcha.generate();
     await captcha.save();
 
     delete captcha.value;
-
     return captcha;
   }
 
