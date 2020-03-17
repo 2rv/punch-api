@@ -4,8 +4,8 @@ import { randomUUID } from 'src/utils/hash';
 import { InternalServerErrorException } from '@nestjs/common';
 
 const CaptchaCache = new NodeCache({
-  stdTTL: 300,
-  checkperiod: 300,
+  stdTTL: 150,
+  checkperiod: 150,
   deleteOnExpire: true,
 });
 

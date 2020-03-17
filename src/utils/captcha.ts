@@ -6,7 +6,7 @@ interface CaptchaDataType {
 }
 
 export const createCaptcha = async (): Promise<CaptchaDataType> => {
-  const captcha = await Captcha.create({ height: 50, width: 100 });
+  const captcha = await Captcha.create();
 
   const text = await captcha.text();
 
