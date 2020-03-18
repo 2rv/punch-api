@@ -7,6 +7,7 @@ const CaptchaCache = new NodeCache({
   stdTTL: 150,
   checkperiod: 150,
   deleteOnExpire: true,
+  maxKeys: 1000000,
 });
 
 export class Captcha {

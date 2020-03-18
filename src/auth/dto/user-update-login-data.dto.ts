@@ -7,7 +7,7 @@ export class UserUpdateLoginDataDto {
     context: LocalError(Errors.VALIDATION_REQUIRED),
   })
   @IsString()
-  @Matches(/^(?=.{4,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, {
+  @Matches(/^[a-z0-9_-]{4,20}$/, {
     context: LocalError(Errors.VALIDATION_LOGIN),
   })
   login: string;
