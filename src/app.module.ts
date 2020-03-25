@@ -6,6 +6,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggingInterceptor } from './logging.interceptor';
 // import { MessageModule } from './message/message.module';
 import { CaptchaModule } from './captcha/captcha.module';
+import { PaymentModule } from './payment/payment.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
@@ -24,6 +25,7 @@ import { ConfigModule } from '@nestjs/config';
     AuthModule,
     // MessageModule,
     CaptchaModule,
+    PaymentModule,
   ],
 })
 export class AppModule {}
