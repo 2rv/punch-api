@@ -5,4 +5,5 @@ export interface JwtPayload {
   role: keyof UserRole;
   balance: number;
   login: string;
+  bitcoinPaymentAddress: string;
 }

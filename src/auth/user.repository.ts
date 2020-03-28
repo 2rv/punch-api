@@ -50,6 +50,7 @@ export class UserRepository extends Repository<User> {
       'user.password',
       'user.login',
       'user.key',
+      'user.bitcoinPaymentAddress',
     ]);
 
     const user = await query.getOne();

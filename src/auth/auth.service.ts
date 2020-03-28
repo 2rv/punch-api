@@ -1,11 +1,7 @@
 import {
   Injectable,
-  Scope,
-  BadRequestException,
   InternalServerErrorException,
   ConflictException,
-  Inject,
-  forwardRef,
 } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -48,13 +44,14 @@ export class AuthService {
 
   async login(userLoginDto: UserLoginDto): Promise<LoginInfoDto> {
     const userData = await this.userRepository.login(userLoginDto);
-    const { id, role, balance, login } = userData;
+    const { id, role, balance, login, bitcoinPaymentAddress } = userData;
 
     const payload: JwtPayload = {
       id,
       role,
       login,
       balance,
+      bitcoinPaymentAddress,
     };
 
     const accessToken = await this.createJwt(payload);

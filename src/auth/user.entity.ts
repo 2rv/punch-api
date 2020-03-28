@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   Unique,
+  OneToMany,
 } from 'typeorm';
 import {
   generateBcryptHash,
@@ -12,7 +13,7 @@ import {
   generatePasswordSalt,
 } from '../utils/hash';
 import { UserRole } from './enum/user-role.enum';
-import * as bcrypt from 'bcrypt';
+import { BitcoinPayment } from 'src/payment/bitcoin-payment.entity';
 
 @Entity()
 @Unique(['login'])
@@ -37,8 +38,18 @@ export class User extends BaseEntity {
   })
   role: keyof UserRole;
 
-  @Column({ type: 'decimal', default: 0 })
+  @Column({ type: 'float', default: 0 })
   balance: number;
+
+  @OneToMany(
+    type => User,
+    user => user.bitcoinPayment,
+    { eager: false },
+  )
+  bitcoinPayment: BitcoinPayment;
+
+  @Column({ nullable: true, default: null })
+  bitcoinPaymentAddress: string;
 
   static async generateKeyHash(): Promise<string> {
     return generateKeyHash();
@@ -60,5 +71,10 @@ export class User extends BaseEntity {
 
   async validatePassword(password: string): Promise<boolean> {
     return this.password === password;
+  }
+
+  async updateBalance(num: number): Promise<void> {
+    this.balance += num;
+    await this.save();
   }
 }
