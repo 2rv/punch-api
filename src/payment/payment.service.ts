@@ -175,6 +175,9 @@ export class PaymentService {
       where: {
         user,
       },
+      order: {
+        id: 'DESC',
+      },
       select: ['id', 'amount', 'createDate', 'confirm', 'transaction'],
     });
 
