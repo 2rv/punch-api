@@ -54,12 +54,12 @@ export class PaymentService {
         id,
       );
       const newTransactionList = transactionList.filter(({ time, result }) => {
-        if (!lastPayment) {
-          return true;
-        }
-
         if (result <= 0) {
           return false;
+        }
+
+        if (!lastPayment) {
+          return true;
         }
 
         return time > lastPayment.transactionCreateDate;
