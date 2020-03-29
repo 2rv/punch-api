@@ -45,29 +45,28 @@ export class PaymentService {
   );
 
   async checkBitcoinAddressPayments(user: User): Promise<void> {
-    console.log(1);
-    // const { id, bitcoinPaymentAddress } = user;
-    // const transactionList = await BitcoinPayment.getTransactionListByAddress(
-    //   bitcoinPaymentAddress,
-    // );
+    const { id, bitcoinPaymentAddress } = user;
+    const transactionList = await BitcoinPayment.getTransactionListByAddress(
+      bitcoinPaymentAddress,
+    );
 
-    // if (transactionList.length !== 0) {
-    //   const lastPayment: BitcoinPayment = await this.bitcoinPaymentRepository.getLastPaymentByUserId(
-    //     id,
-    //   );
+    if (transactionList.length !== 0) {
+      const lastPayment: BitcoinPayment = await this.bitcoinPaymentRepository.getLastPaymentByUserId(
+        id,
+      );
 
-    //   const newTransactionList = transactionList.filter(({ time }) => {
-    //     if (!lastPayment) {
-    //       return true;
-    //     }
+      const newTransactionList = transactionList.filter(({ time }) => {
+        if (!lastPayment) {
+          return true;
+        }
 
-    //     return time > lastPayment.transactionCreateDate;
-    //   });
+        return time > lastPayment.transactionCreateDate;
+      });
 
-    //   if (newTransactionList.length !== 0) {
-    //     await this.createNewPayments(newTransactionList, user);
-    //   }
-    // }
+      if (newTransactionList.length !== 0) {
+        await this.createNewPayments(newTransactionList, user);
+      }
+    }
   }
 
   async createNewPayments(transactionList, user: User) {
