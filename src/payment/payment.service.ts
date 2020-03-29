@@ -49,20 +49,21 @@ export class PaymentService {
     const transactionList = await BitcoinPayment.getTransactionListByAddress(
       bitcoinPaymentAddress,
     );
-
     if (transactionList.length !== 0) {
       const lastPayment: BitcoinPayment = await this.bitcoinPaymentRepository.getLastPaymentByUserId(
         id,
       );
-
-      const newTransactionList = transactionList.filter(({ time }) => {
+      const newTransactionList = transactionList.filter(({ time, result }) => {
         if (!lastPayment) {
           return true;
         }
 
+        if (result <= 0) {
+          return false;
+        }
+
         return time > lastPayment.transactionCreateDate;
       });
-
       if (newTransactionList.length !== 0) {
         await this.createNewPayments(newTransactionList, user);
       }
