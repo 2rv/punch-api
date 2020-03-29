@@ -3,15 +3,13 @@ import {
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
-
-import { Translate } from '../utils';
+import { Translate, Throttle } from '../utils';
 import { Errors } from './enum/errors.enum';
 import { User } from 'src/auth/user.entity';
 import { BitcoinKeyRepository } from './bitcoin-key.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BitcoinPayment } from './bitcoin-payment.entity';
 import { BitcoinPaymentRepository } from './bitcoin-payment.repository';
-import { resolve } from 'dns';
 
 const PAYMENT_UPDATE_INTERVAL = 600000; // 10m
 const PAYMENT_MINUTES_LIMIT = 60; // 60m
@@ -31,13 +29,23 @@ export class PaymentService {
       await user.save();
       return { address };
     } else {
-      return { address: user.bitcoinPaymentAddress };
+      throw new ConflictException(
+        Translate(Errors.BITCOIN_PAYMENT_ADDRESS_ALREADY_CREATED),
+      );
     }
   }
+  async checkBitcoinAddressPaymentsLimited(user: User): Promise<void> {
+    await this.checkBitcoinAddressPaymentsThrottle(user);
+  }
+
+  checkBitcoinAddressPaymentsThrottle = Throttle(
+    this.checkBitcoinAddressPayments,
+    1,
+    15000,
+  );
 
   async checkBitcoinAddressPayments(user: User): Promise<void> {
     const { id, bitcoinPaymentAddress } = user;
-
     const transactionList = await BitcoinPayment.getTransactionListByAddress(
       bitcoinPaymentAddress,
     );
@@ -167,6 +175,7 @@ export class PaymentService {
       where: {
         user,
       },
+      select: ['id', 'amount', 'createDate', 'confirm', 'transaction'],
     });
 
     if (paymentList.length === 0) {

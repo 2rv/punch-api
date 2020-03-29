@@ -63,6 +63,12 @@ export class AuthController {
   @UseGuards(AuthGuard())
   checkToken(@GetUser() user: User): void {}
 
+  @Get('/token/refresh')
+  @UseGuards(AuthGuard())
+  updateToken(@GetUser() user: User): Promise<LoginInfoDto> {
+    return this.authService.createLoginData(user);
+  }
+
   @Get('/admin')
   @Roles(UserRole.ADMIN)
   @UseGuards(AuthGuard(), RolesGuard)

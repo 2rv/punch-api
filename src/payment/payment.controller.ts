@@ -1,11 +1,9 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  ValidationPipe,
   UseGuards,
   Param,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -34,8 +32,10 @@ export class PaymentController {
 
   @Get('/check/bitcoin')
   @UseGuards(AuthGuard(), BitcoinPaymentAddressGuard)
-  async checkBitcoinAddressPayments(@GetUser() user: User): Promise<void> {
-    return this.paymentService.checkBitcoinAddressPayments(user);
+  public async checkBitcoinAddressPayments(
+    @GetUser() user: User,
+  ): Promise<void> {
+    return this.paymentService.checkBitcoinAddressPaymentsLimited(user);
   }
 
   @Get('/status/bitcoin')

@@ -44,8 +44,12 @@ export class AuthService {
 
   async login(userLoginDto: UserLoginDto): Promise<LoginInfoDto> {
     const userData = await this.userRepository.login(userLoginDto);
-    const { id, role, balance, login, bitcoinPaymentAddress } = userData;
 
+    return this.createLoginData(userData);
+  }
+
+  async createJwt(user: User): Promise<string> {
+    const { id, role, balance, login, bitcoinPaymentAddress } = user;
     const payload: JwtPayload = {
       id,
       role,
@@ -54,15 +58,15 @@ export class AuthService {
       bitcoinPaymentAddress,
     };
 
-    const accessToken = await this.createJwt(payload);
+    return this.jwtService.sign(payload);
+  }
+
+  async createLoginData(user: User): Promise<LoginInfoDto> {
+    const accessToken = await this.createJwt(user);
 
     const loginInfoDto: LoginInfoDto = { accessToken };
 
     return loginInfoDto;
-  }
-
-  async createJwt(payload: JwtPayload): Promise<string> {
-    return this.jwtService.sign(payload);
   }
 
   async refreshKey(user: User): Promise<UserRefreshKeyDto> {

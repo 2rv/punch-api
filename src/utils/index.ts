@@ -1,4 +1,5 @@
 import generateHash from 'random-hash';
+import * as pThrottle from 'p-throttle';
 
 const PasswordPrefix = '@123TestPass';
 const LoginPrefix = 'user';
@@ -42,3 +43,5 @@ export const isStringNumber = str => {
 
   return str.length === strNum.length;
 };
+
+export const Throttle = (fn, limit, rate) => pThrottle(fn, limit, rate);

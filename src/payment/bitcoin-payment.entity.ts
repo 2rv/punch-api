@@ -44,16 +44,19 @@ export class BitcoinPayment extends BaseEntity {
   async calcAmount(resultSatoshi: number): Promise<void> {
     const resultBtc = resultSatoshi / 100000000;
     const { data } = await Api.get(`https://blockchain.info/ticker`);
-    console.log(data.USD.sell, resultBtc);
     const resultUsd = Math.ceil(data.USD.sell * resultBtc * 100) / 100;
     this.amount = resultUsd;
   }
 
   static async getTransactionListByAddress(address): Promise<[]> {
-    const { data } = await Api.get(
-      `https://blockchain.info/rawaddr/${address}`,
-    );
-    return data.txs;
+    try {
+      const { data } = await Api.get(
+        `https://blockchain.info/rawaddr/${address}`,
+      );
+      return data.txs;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async updateTransactionStatus(): Promise<void> {

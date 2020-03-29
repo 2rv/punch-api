@@ -5,6 +5,7 @@ import { AuthModule } from '../auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BitcoinKeyRepository } from './bitcoin-key.repository';
 import { BitcoinPaymentRepository } from './bitcoin-payment.repository';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
